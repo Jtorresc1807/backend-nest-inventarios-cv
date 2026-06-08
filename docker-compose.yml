@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # --- SERVICIO DE BASE DE DATOS (POSTGRES) ---
+  postgres-db:
+    image: postgres:15-alpine # Usamos una versión ligera y estable
+    container_name: nest-postgres-container2
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgresql # La contraseña que estás usando
+      POSTGRES_DB: bd_nest_proy # Puedes cambiar el nombre de la BD aquí
+    ports:
+      - "5432:5432" # Mapea el puerto del contenedor al puerto de tu máquina
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Mantiene tus datos vivos aunque apagues el contenedor
+    networks:
+      - nest-network
+
+  # --- SERVICIO DE INTERFAZ GRÁFICA (PGADMIN) ---
+  pgadmin-web:
+    image: dpage/pgadmin4:latest
+    container_name: nest-pgadmin-container2
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com # Correo para iniciar sesión en la web de pgAdmin
+      PGADMIN_DEFAULT_PASSWORD: admin # Contraseña para iniciar sesión en la web de pgAdmin
+    ports:
+      - "8080:80" # Entrarás desde tu navegador a http://localhost:8080
+    depends_on:
+      - postgres-db # Espera a que la base de datos encienda primero
+    networks:
+      - nest-network
+
+# --- RED INTERNA ---
+networks:
+  nest-network:
+    driver: bridge
+
+# --- VOLUMEN PARA NO PERDER DATOS ---
+volumes:
+  postgres_data:
